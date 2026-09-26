@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-const API_URL = 'http://127.0.0.1:8000/predict'
+const API_URL = 'https://mindscore-ai-n3ng.onrender.com'
 
 const PLATFORMS = [
   'Facebook', 'LinkedIn', 'Instagram', 'Snapchat', 'Twitter',
