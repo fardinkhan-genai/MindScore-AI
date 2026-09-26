@@ -41,6 +41,11 @@ class PredictionResponse(BaseModel):
     predicted_mental_health_score:float
 
 
+@app.get('/')
+def greet():
+    return {'MindScore AI — Student Mental Health Score Prediction System'}
+
+
 @app.post('/predict', response_model=PredictionResponse) 
 def predict(data: StudentData):
    
