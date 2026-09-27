@@ -1,6 +1,16 @@
 import { useEffect, useRef, useState } from 'react'
 
-const API_URL = 'https://mindscore-ai-n3ng.onrender.com'
+const API_URL = "https://mindscore-ai-n3ng.onrender.com";
+
+const response = await fetch(`${API_URL}/predict`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify(formData),
+});
+
+const result = await response.json();
 
 const PLATFORMS = [
   'Facebook', 'LinkedIn', 'Instagram', 'Snapchat', 'Twitter',
