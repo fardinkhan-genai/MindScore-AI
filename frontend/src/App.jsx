@@ -180,20 +180,41 @@ export default function App() {
   }
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    const result = await handlePredict(formData);
+    if (formRef.current && !formRef.current.reportValidity()) return;
 
-    console.log(result);
+    setStatus('loading');
+    setError('');
 
-    // Example:
-    // setPrediction(result.predicted_mental_health_score);
+    try {
+      const formData = {
+        ...form,
+        age: Number(form.age),
+        avg_daily_usage_hours: Number(form.avg_daily_usage_hours),
+        daily_unlocks: Number(form.daily_unlocks),
+        study_hours: Number(form.study_hours),
+        physical_activity_hours: Number(form.physical_activity_hours),
+        sleep_hours_per_night: Number(form.sleep_hours_per_night),
+      };
 
-  } catch (error) {
-    console.error(error);
-  }
-};
+      const apiResult = await handlePredict(formData);
+      console.log('Prediction API response:', apiResult);
+
+      const predictedScore = Number(apiResult.predicted_mental_health_score);
+
+      if (!Number.isFinite(predictedScore)) {
+        throw new Error('The API returned an invalid prediction score.');
+      }
+
+      setResult(predictedScore);
+      setStatus('done');
+    } catch (error) {
+      console.error('Prediction failed:', error);
+      setError(error.message || 'Unable to get the prediction. Please try again.');
+      setStatus('error');
+    }
+  };
 
   function handleReset() {
     setForm(emptyForm)
