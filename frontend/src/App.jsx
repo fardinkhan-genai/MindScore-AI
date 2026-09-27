@@ -2,15 +2,28 @@ import { useEffect, useRef, useState } from 'react'
 
 const API_URL = "https://mindscore-ai-n3ng.onrender.com";
 
-const response = await fetch(`${API_URL}/predict`, {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify(formData),
-});
+async function handlePredict(formData) {
+  try {
+    const response = await fetch(`${API_URL}/predict`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(formData)
+    });
 
-const result = await response.json();
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status}`);
+    }
+
+    const result = await response.json();
+
+    return result;
+  } catch (error) {
+    console.error("Prediction failed:", error);
+    throw error;
+  }
+}
 
 const PLATFORMS = [
   'Facebook', 'LinkedIn', 'Instagram', 'Snapchat', 'Twitter',
@@ -166,43 +179,21 @@ export default function App() {
     setStep((s) => Math.max(0, s - 1))
   }
 
-  async function handleSubmit(e) {
-    e.preventDefault()
-    if (formRef.current && !formRef.current.reportValidity()) return
-    setStatus('loading')
-    setError('')
-    try {
-      const payload = { ...form }
-      for (const key of numberFields) {
-        payload[key] = key === 'age' || key === 'daily_unlocks'
-          ? parseInt(payload[key], 10)
-          : parseFloat(payload[key])
-      }
-      const res = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      })
-      if (!res.ok) {
-        const body = await res.json().catch(() => null)
-        throw new Error(
-          body?.detail
-            ? (Array.isArray(body.detail) ? body.detail.map((d) => d.msg).join(', ') : String(body.detail))
-            : 'The server could not process that request.'
-        )
-      }
-      const data = await res.json()
-      setResult(data.predicted_mental_health_score)
-      setStatus('done')
-    } catch (err) {
-      setError(
-        err instanceof TypeError
-          ? "We couldn't connect to the server. Please make sure it's running and try again."
-          : (err.message || 'Something went wrong. Please try again.')
-      )
-      setStatus('error')
-    }
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    const result = await handlePredict(formData);
+
+    console.log(result);
+
+    // Example:
+    // setPrediction(result.predicted_mental_health_score);
+
+  } catch (error) {
+    console.error(error);
   }
+};
 
   function handleReset() {
     setForm(emptyForm)
